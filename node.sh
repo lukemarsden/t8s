@@ -6,13 +6,17 @@ version_tag() {
 
 conf=($(docker-machine config "hyperquick-${1:-"1"}"))
 
-exec docker "${conf[@]}" run --tty --interactive \
-  --net=host --pid=host --privileged=true \
-  --volume=/var/run/docker.sock:/var/run/docker.sock:rw \
-  --volume=/var/lib/docker:/var/lib/docker:rw \
-  --volume=/dev:/dev \
-  --volume=/sys:/sys:ro \
-  --volume=/var/run:/var/run:rw \
-  --volume=/run:/run:rw \
-    "errordeveloper/hyperquick:node-$(version_tag)" \
-      --wait-for-kubeconfig=true
+# simulate systemd restarts so that we get crashlooping behaviour
+while true; do
+    docker "${conf[@]}" run --tty --interactive \
+      --net=host --pid=host --privileged=true \
+      --volume=/var/run/docker.sock:/var/run/docker.sock:rw \
+      --volume=/var/lib/docker:/var/lib/docker:rw \
+      --volume=/dev:/dev \
+      --volume=/sys:/sys:ro \
+      --volume=/var/run:/var/run:rw \
+      --volume=/run:/run:rw \
+        "errordeveloper/hyperquick:node-$(version_tag)" || true
+    echo "Sleeping and retrying..."
+    sleep 1
+done

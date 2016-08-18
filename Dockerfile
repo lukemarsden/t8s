@@ -22,4 +22,4 @@ RUN ln /etc/kubernetes/hyperkube /hyperkube && ln /etc/kubernetes/kubectl /usr/b
 
 RUN /etc/kubernetes/generate-master-config.sh $VERSION_TAG
 
-ENTRYPOINT [ "/hyperkube", "kubelet", "--network-plugin=cni", "--network-plugin-dir=/etc/cni/net.d", "--kubeconfig=/etc/kubernetes/kubelet.conf", "--config=/etc/kubernetes/manifests" ]
+ENTRYPOINT [ "/hyperkube", "kubelet", "--network-plugin=cni", "--network-plugin-dir=/etc/cni/net.d", "--kubeconfig=/etc/kubernetes/kubelet.conf", "--config=/etc/kubernetes/manifests", "--require-kubeconfig=true" ]

@@ -25,7 +25,9 @@ docker run --rm \
         cp -va /etc/kubernetes/pki /host-etc/kubernetes-pki ;
       "
 
-exec docker run --tty --interactive --rm --name=kubelet \
+# simulate systemd restarts so that we get crashlooping behaviour
+while true; do
+    docker run --tty --interactive --rm --name=kubelet \
   --net=host --pid=host --privileged=true \
   --volume=/var/run/docker.sock:/var/run/docker.sock:rw \
   --volume=/var/lib/docker:/var/lib/docker:rw \
@@ -34,6 +36,8 @@ exec docker run --tty --interactive --rm --name=kubelet \
   --volume=/var/run:/var/run:rw \
   --volume=/etc/kubernetes-pki:/etc/kubernetes/pki:rw \
   --volume=/run:/run:rw \
-  "errordeveloper/hyperquick:master-$(version_tag)" \
-     --wait-for-kubeconfig=true \
-       "$@"
+    "errordeveloper/hyperquick:master-$(version_tag)" \
+       "$@" || true
+    echo "Sleeping and retrying..."
+    sleep 1
+done

@@ -41,8 +41,10 @@ binaries:
 	@cp "$(BUILD)/kubectl" "./"
 	@cp "$(BUILD)/kubeadm" "./"
 
-clean:
+partial-clean:
 	@docker ps -a | awk '$$2 !~ /weaveworks/ && $$1 !~ /^CONTAINER$$/ { print $$1 }' | xargs docker rm -f -v
+
+clean: partial-clean
 	@docker images | awk '$$1 ~ /none/ { print $$3 }' | xargs docker rmi -f
 	@docker images | awk '$$1 ~ /hyperquick$$/ && $$2 ~ /^(node|master)-v/ { print $$3 }' | xargs docker rmi -f
 
